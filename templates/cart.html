@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-8">Your Shopping Cart</h1>
+    
+    {% if not cart_items %}
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <i class="fas fa-shopping-cart text-5xl text-gray-300 mb-4"></i>
+        <p class="text-xl mb-4">Your cart is empty</p>
+        <a href="/products" class="bg-pingpong-blue text-white px-6 py-2 rounded hover:bg-blue-600 transition duration-300 inline-block">
+            Continue Shopping
+        </a>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="py-4 px-6 text-left">Product</th>
+                    <th class="py-4 px-6 text-center">Price</th>
+                    <th class="py-4 px-6 text-center">Quantity</th>
+                    <th class="py-4 px-6 text-center">Total</th>
+                    <th class="py-4 px-6"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr class="border-t">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center">
+                            <div class="h-16 w-16 bg-gray-200 rounded flex items-center justify-center mr-4">
+                                <i class="fas fa-table-tennis text-gray-400"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">{{ item.name }}</h3>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-center">${{ "%.2f"|format(item.price) }}</td>
+                    <td class="py-4 px-6 text-center">
+                        <div class="flex items-center justify-center">
+                            <button class="quantity-btn bg-gray-200 px-2 py-1 rounded-l" data-action="decrease" data-id="{{ item.id }}">-</button>
+                            <span class="border-t border-b border-gray-200 px-3 py-1 quantity">{{ item.quantity }}</span>
+                            <button class="quantity-btn bg-gray-200 px-2 py-1 rounded-r" data-action="increase" data-id="{{ item.id }}">+</button>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-center">${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                    <td class="py-4 px-6 text-center">
+                        <button class="remove-item text-red-500 hover:text-red-700" data-id="{{ item.id }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="p-6 border-t">
+            <div class="flex justify-end">
+                <div class="w-64">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-semibold">Subtotal:</span>
+                        <span>${{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+                    <div class="flex justify-between mb-4">
+                        <span class="font-semibold">Shipping:</span>
+                        <span>$5.00</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-bold border-t pt-4">
+                        <span>Total:</span>
+                        <span>${{ "%.2f"|format(subtotal + 5) }}</span>
+                    </div>
+                    <a href="/checkout" class="block w-full bg-pingpong-red text-white text-center py-3 rounded mt-6 hover:bg-red-600 transition duration-300">
+                        Proceed to Checkout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Quantity adjustment
+    document.querySelectorAll('.quantity-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const productId = this.dataset.id;
+            const quantityElement = this.parentElement.querySelector('.quantity');
+            let quantity = parseInt(quantityElement.textContent);
+            
+            if (action === 'increase') {
+                quantity++;
+            } else if (action === 'decrease' && quantity > 1) {
+                quantity--;
+            }
+            
+            if (quantity !== parseInt(quantityElement.textContent)) {
+                fetch('/api/update-cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        product_id: productId,
+                        quantity: quantity
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        quantityElement.textContent = quantity;
+                        location.reload(); // Refresh to update totals
+                    }
+                });
+            }
+        });
+    });
+    
+    // Remove item
+    document.querySelectorAll('.remove-item').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.id;
+            
+            if (confirm('Are you sure you want to remove this item from your cart?')) {
+                fetch('/api/remove-from-cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload(); // Refresh to update cart
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}
