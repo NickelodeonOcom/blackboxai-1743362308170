@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero bg-gradient-to-r from-pingpong-blue to-pingpong-red text-white py-20 mb-16">
+    <div class="container mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6">Welcome to Polare</h1>
+        <p class="text-xl mb-8">Your one-stop shop for premium table tennis equipment</p>
+        <a href="/products" class="bg-white text-pingpong-red px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition duration-300 inline-block">
+            Shop Now
+        </a>
+    </div>
+</section>
+
+<section class="mb-16">
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-8 text-center">Featured Products</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for category in ['paddles', 'blades', 'rubbers', 'balls'] %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                <div class="h-48 bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-table-tennis text-5xl text-gray-400"></i>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2 capitalize">{{ category }}</h3>
+                    <a href="/products?category={{ category }}" class="text-pingpong-blue hover:underline">View Collection</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="bg-gray-50 py-16">
+    <div class="container mx-auto text-center">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6">Need Help Choosing Equipment?</h2>
+            <p class="text-lg mb-8">Our AI ping pong expert can help you find the perfect gear for your playing style and skill level.</p>
+            <a href="/ai-adviser" class="bg-pingpong-blue text-white px-8 py-3 rounded-full font-bold hover:bg-blue-600 transition duration-300 inline-block">
+                Ask Our AI Adviser
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
