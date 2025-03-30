@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Polare AI Adviser</h1>
+        <p class="text-lg mb-8">Ask our AI expert for recommendations on equipment, techniques, or anything table tennis related!</p>
+        
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div id="chat-container" class="h-96 p-4 overflow-y-auto bg-gray-50">
+                <div class="flex justify-start mb-4">
+                    <div class="bg-pingpong-blue text-white rounded-lg p-3 max-w-xs md:max-w-md">
+                        <p>Hello! I'm your Ping Pong AI Adviser. How can I help you with your table tennis needs today?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <form id="chat-form" class="p-4 border-t">
+                <div class="flex space-x-2">
+                    <input type="text" id="user-input" placeholder="Ask about paddles, rubbers, techniques..." 
+                           class="flex-1 border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pingpong-blue">
+                    <button type="submit" class="bg-pingpong-blue text-white px-6 py-2 rounded hover:bg-blue-600 transition duration-300">
+                        Send
+                    </button>
+                </div>
+                <div class="mt-2 flex space-x-2 overflow-x-auto">
+                    <button type="button" class="quick-prompt bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm hover:bg-gray-300">
+                        Recommend a beginner paddle
+                    </button>
+                    <button type="button" class="quick-prompt bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm hover:bg-gray-300">
+                        Best rubber for spin
+                    </button>
+                    <button type="button" class="quick-prompt bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm hover:bg-gray-300">
+                        Tournament rules
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatForm = document.getElementById('chat-form');
+    const chatContainer = document.getElementById('chat-container');
+    const userInput = document.getElementById('user-input');
+    
+    // Add user message to chat
+    function addUserMessage(message) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'flex justify-end mb-4';
+        messageElement.innerHTML = `
+            <div class="bg-gray-200 rounded-lg p-3 max-w-xs md:max-w-md">
+                <p>${message}</p>
+            </div>
+        `;
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Add AI message to chat
+    function addAiMessage(message) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'flex justify-start mb-4';
+        messageElement.innerHTML = `
+            <div class="bg-pingpong-blue text-white rounded-lg p-3 max-w-xs md:max-w-md">
+                <p>${message}</p>
+            </div>
+        `;
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Handle form submission
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const message = userInput.value.trim();
+        if (!message) return;
+        
+        addUserMessage(message);
+        userInput.value = '';
+        
+        try {
+            const response = await fetch('/api/ai', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: message })
+            });
+            
+            const data = await response.json();
+            if (data.response) {
+                addAiMessage(data.response);
+            } else {
+                addAiMessage("Sorry, I couldn't process your request. Please try again.");
+            }
+        } catch (error) {
+            addAiMessage("There was an error connecting to the AI service. Please try again later.");
+        }
+    });
+    
+    // Quick prompts
+    document.querySelectorAll('.quick-prompt').forEach(button => {
+        button.addEventListener('click', function() {
+            userInput.value = this.textContent;
+            chatForm.dispatchEvent(new Event('submit'));
+        });
+    });
+</script>
+{% endblock %}
