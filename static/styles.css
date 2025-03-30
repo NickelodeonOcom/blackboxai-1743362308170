@@ -1,0 +1,36 @@
+/* Custom styles for ping pong shop */
+.product-card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+
+#chat-container {
+    scrollbar-width: thin;
+    scrollbar-color: #3a7bff #f0f0f0;
+}
+
+#chat-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chat-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+#chat-container::-webkit-scrollbar-thumb {
+    background-color: #3a7bff;
+    border-radius: 4px;
+}
+
+.quantity-btn {
+    transition: background-color 0.2s ease;
+}
+
+.quantity-btn:hover {
+    background-color: #d1d5db !important;
+}
+
+.remove-item:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
