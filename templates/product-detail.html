@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="md:flex">
+            <div class="md:w-1/2 p-8">
+                <div class="h-96 bg-gray-200 flex items-center justify-center rounded-lg">
+                    <i class="fas fa-table-tennis text-8xl text-gray-400"></i>
+                </div>
+            </div>
+            <div class="md:w-1/2 p-8">
+                <h1 class="text-3xl font-bold mb-4">{{ product.name }}</h1>
+                <p class="text-pingpong-red text-2xl font-bold mb-6">${{ "%.2f"|format(product.price) }}</p>
+                
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-2">Description</h2>
+                    <p class="text-gray-700">
+                        {% if 'blade' in product.name.lower() %}
+                        High-performance table tennis blade designed for {% if 'Pro' in product.name %}professional{% else %}beginner{% endif %} players.
+                        {% elif 'rubber' in product.name.lower() %}
+                        Premium quality rubber with {% if 'Spin' in product.name %}exceptional spin control{% else %}lightning-fast speed{% endif %}.
+                        {% elif 'paddle' in product.name.lower() %}
+                        Complete ping pong paddle ready for {% if 'Beginner' in product.name %}learning{% else %}competition{% endif %}.
+                        {% else %}
+                        Tournament-grade ping pong balls for consistent bounce and durability.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-2">Specifications</h2>
+                    <ul class="list-disc pl-5 text-gray-700">
+                        {% if 'blade' in product.name.lower() %}
+                        <li>{% if 'Carbon' in product.name %}Carbon fiber{% else %}5-ply wood{% endif %} construction</li>
+                        <li>{% if 'Pro' in product.name %}Offensive{% else %}All-round{% endif %} playing style</li>
+                        <li>Weight: ~85g</li>
+                        {% elif 'rubber' in product.name.lower() %}
+                        <li>{% if 'Spin' in product.name %}Tacky{% else %}Smooth{% endif %} surface</li>
+                        <li>Sponge thickness: 2.0mm</li>
+                        <li>ITTF approved</li>
+                        {% elif 'paddle' in product.name.lower() %}
+                        <li>Pre-assembled with high quality rubber</li>
+                        <li>{% if 'Beginner' in product.name %}All-round{% else %}Offensive{% endif %} playing style</li>
+                        <li>Weight: ~180g</li>
+                        {% else %}
+                        <li>Pack of {% if 'Training' in product.name %}6{% else %}3{% endif %} balls</li>
+                        <li>40mm diameter</li>
+                        <li>ITTF approved</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <input type="number" min="1" value="1" class="border rounded w-16 px-2 py-1" id="quantity">
+                    <button class="add-to-cart bg-pingpong-blue text-white px-6 py-2 rounded hover:bg-blue-600 transition duration-300"
+                            data-product-id="{{ product.id }}">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector('.add-to-cart').addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        const quantity = document.getElementById('quantity').value;
+        
+        fetch('/api/add-to-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ 
+                product_id: parseInt(productId),
+                quantity: parseInt(quantity)
+            }),
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const cartCount = document.getElementById('cart-count');
+                cartCount.textContent = parseInt(cartCount.textContent || '0') + parseInt(quantity);
+                cartCount.classList.remove('hidden');
+                alert('Product added to cart!');
+            }
+        });
+    });
+</script>
+{% endblock %}
