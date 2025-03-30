@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong Pro Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pingpong-red': '#ff3a3a',
+                        'pingpong-blue': '#3a7bff',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="/" class="flex items-center space-x-2">
+                    <i class="fas fa-table-tennis text-pingpong-red text-2xl"></i>
+                    <span class="font-bold text-xl">Polare</span>
+                </a>
+                <div class="flex space-x-6">
+                    <a href="/products" class="hover:text-pingpong-blue">Products</a>
+                    <a href="/cart" class="hover:text-pingpong-blue relative">
+                        Cart
+                        <span id="cart-count" class="absolute -top-2 -right-4 bg-pingpong-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </a>
+                    <a href="/ai-adviser" class="hover:text-pingpong-blue">AI Adviser</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-4">Ping Pong Pro</h3>
+                    <p>Your premier source for quality table tennis equipment</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/products" class="hover:text-pingpong-blue">Shop</a></li>
+                        <li><a href="/ai-adviser" class="hover:text-pingpong-blue">Get Advice</a></li>
+                        <li><a href="#" class="hover:text-pingpong-blue">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                &copy; 2024 Ping Pong Pro Shop. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Update cart count from session
+        fetch('/api/cart-count')
+            .then(response => response.json())
+            .then(data => {
+                const cartCount = document.getElementById('cart-count');
+                if (data.count > 0) {
+                    cartCount.textContent = data.count;
+                    cartCount.classList.remove('hidden');
+                }
+            });
+    </script>
+</body>
+</html>
