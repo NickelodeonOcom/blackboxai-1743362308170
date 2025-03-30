@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <h1 class="text-3xl font-bold">Our Ping Pong Products</h1>
+        <div class="mt-4 md:mt-0">
+            <select id="category-filter" class="border rounded px-4 py-2">
+                <option value="all">All Categories</option>
+                <option value="blades">Blades</option>
+                <option value="rubbers">Rubbers</option>
+                <option value="paddles">Paddles</option>
+                <option value="balls">Balls</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="products-container">
+        {% for category, items in products.items() %}
+            {% for product in items %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 product-card" data-category="{{ category }}">
+                <div class="h-64 bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-table-tennis text-6xl text-gray-400"></i>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">{{ product.name }}</h3>
+                    <p class="text-pingpong-red font-bold text-lg mb-4">${{ "%.2f"|format(product.price) }}</p>
+                    <div class="flex justify-between items-center">
+                        <a href="/product/{{ product.id }}" class="text-pingpong-blue hover:underline">View Details</a>
+                        <button class="add-to-cart bg-pingpong-blue text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300" 
+                                data-product-id="{{ product.id }}">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Category filter functionality
+    document.getElementById('category-filter').addEventListener('change', function() {
+        const selectedCategory = this.value;
+        const productCards = document.querySelectorAll('.product-card');
+        
+        productCards.forEach(card => {
+            if (selectedCategory === 'all' || card.dataset.category === selectedCategory) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Add to cart functionality
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            
+            fetch('/api/add-to-cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ 
+                    product_id: parseInt(productId),
+                    quantity: 1 
+                }),
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count
+                    const cartCount = document.getElementById('cart-count');
+                    cartCount.textContent = parseInt(cartCount.textContent || '0') + 1;
+                    cartCount.classList.remove('hidden');
+                    
+                    // Show success message
+                    alert('Product added to cart!');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
